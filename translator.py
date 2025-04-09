@@ -42,15 +42,30 @@ def main():
     device = torch.device("cuda" if gpu_available else "cpu")
     print(f"使用设备: {device_name}")
     
-    # 模型路径和名称 - 更新为新的目录结构
-    en_zh_local_path = "./train_small/en_zh_translator_small"
-    zh_en_local_path = "./train_small/zh_en_translator_small"
+    # 模型路径
+    # 小数据量训练的模型
+    en_zh_small_path = "./train_small/en_zh_translator_small"
+    zh_en_small_path = "./train_small/zh_en_translator_small"
+    # 全量数据训练的模型
+    en_zh_full_path = "./train/en_zh_translator"
+    zh_en_full_path = "./train/zh_en_translator"
+    # 预训练模型
     en_zh_pretrained = "Helsinki-NLP/opus-mt-en-zh"
     zh_en_pretrained = "Helsinki-NLP/opus-mt-zh-en"
     
-    # 等待用户选择翻译方向
     print("\n=========== 双向翻译器 ===========")
-    print("请选择翻译方向:")
+    
+    # 先选择模型类型
+    print("\n请选择模型类型:")
+    print("1: 小数据量训练模型 (测试用，训练速度快但效果有限)")
+    print("2: 全量数据训练模型 (更准确，适合实际应用)")
+    
+    model_choice = input("请选择模型类型 (1/2，默认1): ").strip()
+    if not model_choice:
+        model_choice = "1"  # 默认使用小数据量模型
+    
+    # 再选择翻译方向
+    print("\n请选择翻译方向:")
     print("EN: 英文 → 中文")
     print("CN: 中文 → 英文")
     print("输入EOF结束程序")
@@ -59,19 +74,33 @@ def main():
     if direction == "EOF":
         print("程序结束，再见！")
         return
+    
+    # 确定要加载的模型路径和预训练模型名称
+    if direction in ["EN", "CN"]:
+        if direction == "EN":
+            print("已选择: 英文 → 中文")
+            if model_choice == "1":
+                model_path = en_zh_small_path
+                print("使用小数据量训练模型（测试用）")
+            else:  # model_choice == "2"
+                model_path = en_zh_full_path
+                print("使用全量数据训练模型")
+            
+            pretrained_model = en_zh_pretrained
+        else:  # CN
+            print("已选择: 中文 → 英文")
+            if model_choice == "1":
+                model_path = zh_en_small_path
+                print("使用小数据量训练模型（测试用）")
+            else:  # model_choice == "2"
+                model_path = zh_en_full_path
+                print("使用全量数据训练模型")
+            
+            pretrained_model = zh_en_pretrained
         
-    # 加载相应的模型
-    if direction == "EN":
-        print("已选择: 英文 → 中文")
+        # 加载模型
         try:
-            model, tokenizer, device = load_model(en_zh_local_path, en_zh_pretrained)
-        except Exception as e:
-            print(f"加载模型失败: {str(e)}")
-            return
-    elif direction == "CN":
-        print("已选择: 中文 → 英文")
-        try:
-            model, tokenizer, device = load_model(zh_en_local_path, zh_en_pretrained)
+            model, tokenizer, device = load_model(model_path, pretrained_model)
         except Exception as e:
             print(f"加载模型失败: {str(e)}")
             return
