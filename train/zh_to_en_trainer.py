@@ -12,20 +12,28 @@ from translator_utils import (
     get_training_args, load_model_and_tokenizer, save_model
 )
 
+# 获取当前脚本所在目录
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # 训练参数
 SAMPLE_SIZE = None  # 使用全部数据
 MODEL_NAME = 'Helsinki-NLP/opus-mt-zh-en'
-OUTPUT_DIR = './results_zh_en'
-SAVE_DIR = './zh_en_translator'
+# 使用绝对路径确保结果保存在脚本目录中
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'results_zh_en')
+SAVE_DIR = os.path.join(SCRIPT_DIR, 'zh_en_translator')
 SOURCE_LANG = 'zh'
 TARGET_LANG = 'en'
-DATA_DIR = '../dataset'  # 数据目录路径
+# 使用os.path.join确保路径正确
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'dataset')
 EPOCHS = 3  # 增加训练轮次
 BATCH_SIZE = 8  # 增加批量大小，如果GPU内存足够
 
 # 主函数
 def main():
     print(f"========== 中译英翻译模型训练（全量数据版） ==========")
+    print(f"数据目录：{DATA_DIR}")
+    print(f"输出目录：{OUTPUT_DIR}")
+    print(f"模型保存目录：{SAVE_DIR}")
     
     # 1. 检查设备
     device = check_device()
@@ -75,7 +83,8 @@ def main():
     # 11. 保存模型
     save_model(model, tokenizer, SAVE_DIR)
     
-    print("可以使用 ../translator.py 加载该模型进行翻译")
+    print(f"可以使用 ../translator.py 加载该模型进行翻译")
+    print(f"模型路径：{SAVE_DIR}")
     print("========== 训练结束 ==========")
 
 if __name__ == "__main__":

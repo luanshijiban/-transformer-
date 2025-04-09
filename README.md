@@ -8,25 +8,35 @@
 ```
 /
 ├── translator.py                    # 主翻译程序入口
-├── train_all.py                     # 全量训练启动脚本
 ├── README.md                        # 项目说明文档
 ├── dataset/                         # 数据集文件夹
-│   ├── data.en                      # 英文数据
-│   ├── data.zh                      # 中文数据
+│   ├── data.en                      # 英文数据（运行download_dataset.py下载）
+│   ├── data.zh                      # 中文数据（运行download_dataset.py下载）
 │   └── download_dataset.py          # 数据集下载脚本
 ├── train_small/                     # 小数据量训练相关文件夹（测试用）
+│   ├── __pycache__/                 # Python缓存文件（自动生成）
 │   ├── translator_utils.py          # 共通工具函数
 │   ├── en_to_zh_trainer_small.py    # 英译中训练脚本（小数据量） 
 │   ├── zh_to_en_trainer_small.py    # 中译英训练脚本（小数据量）
-│   └── en_zh_translator_small/      # 训练好的英译中模型（小数据量）
+│   ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，未上传）
+│   ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，无需上传）
+│   ├── en_zh_translator_small/      # 训练好的英译中模型（训练后产生，体积大）
+│   └── zh_en_translator_small/      # 训练好的中译英模型（训练后产生，体积大）
 └── train/                           # 全量数据训练相关文件夹
+    ├── __pycache__/                 # Python缓存文件（自动生成）
     ├── translator_utils.py          # 共通工具函数
     ├── en_to_zh_trainer.py          # 英译中训练脚本（全量数据）
     ├── zh_to_en_trainer.py          # 中译英训练脚本（全量数据）
-    ├── train_all.py                 # 全量训练启动脚本
-    ├── en_zh_translator/            # 训练好的英译中模型（全量数据）
-    └── zh_en_translator/            # 训练好的中译英模型（全量数据）
+    ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，无需上传）
+    ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，无需上传）
+    ├── en_zh_translator/            # 训练好的英译中模型（训练后产生，体积大）
+    └── zh_en_translator/            # 训练好的中译英模型（训练后产生，体积大）
 ```
+
+**注意**：
+1. 标记为"训练后产生"的目录和文件不包含在代码仓库中，需要通过运行训练脚本生成。
+2. 标记为"体积大，无需上传"的目录（包括模型、中间结果等）总体积可达数GB，建议本地保留但不上传到代码仓库。
+3. `__pycache__`目录由Python解释器自动生成，包含编译后的字节码文件，无需手动管理或上传。
 
 ## 安装依赖
 
@@ -83,13 +93,6 @@ cd train
 python zh_to_en_trainer.py
 ```
 
-也可以一次性训练两个方向的模型：
-
-```bash
-cd train
-python train_all.py
-```
-
 全量数据训练使用完整的数据集，训练时间较长，但模型翻译效果更好。
 
 ### 3. 使用翻译器
@@ -100,7 +103,7 @@ python train_all.py
 python translator.py
 ```
 
-选择翻译方向（EN为英译中，CN为中译英），然后选择模型类型（小数据量训练模型、全量数据训练模型或预训练模型），最后输入要翻译的文本。输入EOF可以结束程序。
+选择模型类型（小数据量测试模型或全量数据训练模型），再选择翻译方向（英译中或中译英），然后输入要翻译的文本。输入EOF可以结束程序。
 
 ## 关于模型
 
