@@ -62,7 +62,7 @@ def main():
     # 小数据量训练的模型
     en_zh_small_path = "./train_small/en_zh_translator_small"
     zh_en_small_path = "./train_small/zh_en_translator_small"
-    # 全量数据训练的模型
+    # 大数据训练的模型
     en_zh_full_path = "./train/en_zh_translator"
     zh_en_full_path = "./train/zh_en_translator"
     
@@ -71,7 +71,7 @@ def main():
     # 先选择模型类型
     print("\n请选择模型类型:")
     print("1: 小数据量训练模型 (测试用)")
-    print("2: 全量数据训练模型 (高质量)")
+    print("2: 大数据训练模型 (高质量)")
     
     model_choice = input("请选择模型类型 (1/2，默认1): ").strip()
     if not model_choice:
@@ -97,7 +97,7 @@ def main():
                 print("使用小数据量训练模型")
             else:  # model_choice == "2"
                 model_path = en_zh_full_path
-                print("使用全量数据训练模型")
+                print("使用大数据训练模型")
         else:  # CN
             print("已选择: 中文 → 英文")
             if model_choice == "1":
@@ -105,7 +105,7 @@ def main():
                 print("使用小数据量训练模型")
             else:  # model_choice == "2"
                 model_path = zh_en_full_path
-                print("使用全量数据训练模型")
+                print("使用大数据训练模型")
         
         # 加载模型
         try:
