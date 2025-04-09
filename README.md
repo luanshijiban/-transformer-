@@ -14,23 +14,23 @@
 │   ├── data.zh                      # 中文数据（运行download_dataset.py下载）
 │   └── download_dataset.py          # 数据集下载脚本
 ├── train_small/                     # 小数据量训练相关文件夹（测试用）
-│   ├── __pycache__/                 # Python缓存文件（自动生成）
+│   ├── __pycache__/                 # Python缓存文件（自动生成，非必要，未上传）
 │   ├── translator_utils.py          # 共通工具函数
 │   ├── en_to_zh_trainer_small.py    # 英译中训练脚本（小数据量） 
 │   ├── zh_to_en_trainer_small.py    # 中译英训练脚本（小数据量）
-│   ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，未上传）
-│   ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，无需上传）
-│   ├── en_zh_translator_small/      # 训练好的英译中模型（训练后产生，体积大）
-│   └── zh_en_translator_small/      # 训练好的中译英模型（训练后产生，体积大）
+│   ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，非必要，未上传）
+│   ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，非必要，未上传）
+│   ├── en_zh_translator_small/      # 训练好的英译中模型（训练后产生，体积大，必要，未上传）
+│   └── zh_en_translator_small/      # 训练好的中译英模型（训练后产生，体积大，必要，未上传）
 └── train/                           # 全量数据训练相关文件夹
-    ├── __pycache__/                 # Python缓存文件（自动生成）
+    ├── __pycache__/                 # Python缓存文件（自动生成，非必要，未上传）
     ├── translator_utils.py          # 共通工具函数
     ├── en_to_zh_trainer.py          # 英译中训练脚本（全量数据）
     ├── zh_to_en_trainer.py          # 中译英训练脚本（全量数据）
-    ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，无需上传）
-    ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，无需上传）
-    ├── en_zh_translator/            # 训练好的英译中模型（训练后产生，体积大）
-    └── zh_en_translator/            # 训练好的中译英模型（训练后产生，体积大）
+    ├── results_en_zh/               # 英译中训练过程中间结果（训练后产生，体积大，非必要，未上传）
+    ├── results_zh_en/               # 中译英训练过程中间结果（训练后产生，体积大，非必要，未上传）
+    ├── en_zh_translator/            # 训练好的英译中模型（训练后产生，体积大，必要，未上传）
+    └── zh_en_translator/            # 训练好的中译英模型（训练后产生，体积大，必要，未上传）
 ```
 
 **注意**：
