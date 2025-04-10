@@ -16,7 +16,7 @@ from translator_utils import (
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 训练参数
-SAMPLE_SIZE = 2000  # 使用2000条数据
+SAMPLE_SIZE = None  # 使用全量数据
 MODEL_NAME = 'Helsinki-NLP/opus-mt-zh-en'
 # 使用绝对路径确保结果保存在脚本目录中
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'results_zh_en')
