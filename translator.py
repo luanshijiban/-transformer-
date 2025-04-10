@@ -15,9 +15,9 @@ class ColorfulTranslatorApp:
         
     def setup_window(self):
         """配置主窗口"""
-        self.master.title("🌈 智能翻译专家")
-        self.master.geometry("800x700")
-        self.master.minsize(750, 650)
+        self.master.title("🌈 英汉双向神经机器翻译系统")
+        self.master.geometry("1280x768")
+        self.master.minsize(550, 450)
         self.master.configure(bg="#f0f2f5")
         
         # 设置窗口图标（如果有）
@@ -118,7 +118,7 @@ class ColorfulTranslatorApp:
         # 渐变背景标题
         self.title_label = tk.Label(
             self.title_frame,
-            text="🌈 智能翻译专家",
+            text="🌈 英汉双向神经机器翻译系统",
             font=self.title_font,
             bg=self.colors["primary"],
             fg="white",
@@ -156,7 +156,7 @@ class ColorfulTranslatorApp:
         # 使用彩色单选按钮
         self.small_model_radio = tk.Radiobutton(
             self.model_frame,
-            text="🚀 快速测试模型 (小数据量)",
+            text="🚀 快速测试模型 (小数据量：测试用)",
             variable=self.model_choice,
             value="1",
             command=self.load_model,
@@ -171,7 +171,7 @@ class ColorfulTranslatorApp:
         
         self.large_model_radio = tk.Radiobutton(
             self.model_frame,
-            text="🎯 高质量翻译模型 (全量数据)",
+            text="🎯 高质量翻译模型 (全量数据：更准确)",
             variable=self.model_choice,
             value="2",
             command=self.load_model,
@@ -181,6 +181,7 @@ class ColorfulTranslatorApp:
             selectcolor=self.colors["secondary"],
             font=self.subtitle_font,
             indicatoron=1
+           
         )
         self.large_model_radio.pack(anchor=tk.W, padx=10, pady=5)
     
@@ -207,7 +208,8 @@ class ColorfulTranslatorApp:
             activebackground=self.colors["background"],
             selectcolor=self.colors["accent"],
             font=self.subtitle_font,
-            indicatoron=1
+            indicatoron=1,
+            width=50
         )
         self.en_radio.pack(side=tk.LEFT, padx=20, pady=5)
         
@@ -222,7 +224,8 @@ class ColorfulTranslatorApp:
             activebackground=self.colors["background"],
             selectcolor=self.colors["accent"],
             font=self.subtitle_font,
-            indicatoron=1
+            indicatoron=1,
+            
         )
         self.cn_radio.pack(side=tk.LEFT, padx=20, pady=5)
     
