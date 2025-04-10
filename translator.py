@@ -1,150 +1,448 @@
-# 翻译器
 import os
 import torch
 from transformers import MarianMTModel, MarianTokenizer
+import tkinter as tk
+from tkinter import ttk, messagebox, scrolledtext
+from tkinter.font import Font
 
-def load_model(model_path):
-    """
-    加载本地训练好的模型
-    model_path: 本地模型路径
-    """
-    if os.path.exists(model_path):
+class ColorfulTranslatorApp:
+    def __init__(self, master):
+        self.master = master
+        self.setup_window()
+        self.create_styles()
+        self.create_widgets()
+        self.load_model()
+        
+    def setup_window(self):
+        """配置主窗口"""
+        self.master.title("🌈 智能翻译专家")
+        self.master.geometry("800x700")
+        self.master.minsize(750, 650)
+        self.master.configure(bg="#f0f2f5")
+        
+        # 设置窗口图标（如果有）
+        try:
+            self.master.iconbitmap("translator_icon.ico")
+        except:
+            pass
+        
+        # 使窗口居中
+        self.center_window()
+    
+    def center_window(self):
+        """使窗口居中显示"""
+        self.master.update_idletasks()
+        width = self.master.winfo_width()
+        height = self.master.winfo_height()
+        x = (self.master.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.master.winfo_screenheight() // 2) - (height // 2)
+        self.master.geometry(f"+{x}+{y}")
+    
+    def create_styles(self):
+        """创建自定义样式"""
+        self.style = ttk.Style()
+        
+        # 主主题
+        self.style.theme_use("clam")
+        
+        # 自定义字体
+        self.title_font = Font(family="Microsoft YaHei", size=18, weight="bold")
+        self.subtitle_font = Font(family="Microsoft YaHei", size=12)
+        self.text_font = Font(family="Consolas", size=11)
+        
+        # 配置颜色主题
+        self.colors = {
+            "primary": "#87CEEB",
+            "secondary": "#a29bfe",
+            "accent": "#fd79a8",
+            "background": "#f0f2f5",
+            "text": "#2d3436",
+            "success": "#00b894",
+            "warning": "#fdcb6e",
+            "error": "#d63031",
+             "b":"#000000"
+        }
+        
+        # 基础样式
+        self.style.configure(".", 
+                           background=self.colors["background"],
+                           foreground=self.colors["text"])
+        
+        # 标签样式
+        self.style.configure("TLabel", 
+                           font=self.subtitle_font,
+                           background=self.colors["background"])
+        
+        # 按钮样式
+        self.style.configure("TButton", 
+                           font=self.subtitle_font,
+                           padding=8,
+                           relief="flat")
+        
+        # 强调按钮样式
+        self.style.configure("Primary.TButton", 
+                           background=self.colors["primary"],
+                           foreground="white")
+        self.style.map("Primary.TButton",
+                      background=[("active", self.colors["secondary"]), 
+                                ("disabled", "#dfe6e9")])
+        
+        # 次要按钮样式
+        self.style.configure("Secondary.TButton", 
+                           background=self.colors["secondary"],
+                           foreground="white")
+        
+        # 标签框架样式
+        self.style.configure("TLabelframe", 
+                           background=self.colors["background"],
+                           borderwidth=2,
+                           relief="solid")
+        self.style.configure("TLabelframe.Label", 
+                           background=self.colors["background"],
+                           font=self.subtitle_font,
+                         )
+    
+    def create_widgets(self):
+        """创建所有界面组件"""
+        # 主框架
+        self.main_frame = ttk.Frame(self.master, padding="20")
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 标题区域（带彩色背景）
+        self.title_frame = ttk.Frame(
+            self.main_frame,
+            style="TFrame"
+        )
+        self.title_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # 渐变背景标题
+        self.title_label = tk.Label(
+            self.title_frame,
+            text="🌈 智能翻译专家",
+            font=self.title_font,
+            bg=self.colors["primary"],
+            fg="white",
+            padx=20,
+            pady=10
+        )
+        self.title_label.pack(fill=tk.X)
+        
+        # 模型选择区域
+        self.create_model_selection()
+        
+        # 方向选择区域
+        self.create_direction_selection()
+        
+        # 输入输出区域
+        self.create_io_areas()
+        
+        # 按钮区域
+        self.create_button_area()
+        
+        # 状态栏
+        self.create_status_bar()
+    
+    def create_model_selection(self):
+        """创建模型选择区域"""
+        self.model_frame = ttk.LabelFrame(
+            self.main_frame,
+            text="🔧 选择模型类型",
+            padding=(15, 10)
+        )
+        self.model_frame.pack(fill=tk.X, pady=5)
+        
+        self.model_choice = tk.StringVar(value="1")
+        
+        # 使用彩色单选按钮
+        self.small_model_radio = tk.Radiobutton(
+            self.model_frame,
+            text="🚀 快速测试模型 (小数据量)",
+            variable=self.model_choice,
+            value="1",
+            command=self.load_model,
+            bg=self.colors["background"],
+            fg=self.colors["text"],
+            activebackground=self.colors["background"],
+            selectcolor=self.colors["secondary"],
+            font=self.subtitle_font,
+            indicatoron=1
+        )
+        self.small_model_radio.pack(anchor=tk.W, padx=10, pady=5)
+        
+        self.large_model_radio = tk.Radiobutton(
+            self.model_frame,
+            text="🎯 高质量翻译模型 (全量数据)",
+            variable=self.model_choice,
+            value="2",
+            command=self.load_model,
+            bg=self.colors["background"],
+            fg=self.colors["text"],
+            activebackground=self.colors["background"],
+            selectcolor=self.colors["secondary"],
+            font=self.subtitle_font,
+            indicatoron=1
+        )
+        self.large_model_radio.pack(anchor=tk.W, padx=10, pady=5)
+    
+    def create_direction_selection(self):
+        """创建翻译方向选择区域"""
+        self.direction_frame = ttk.LabelFrame(
+            self.main_frame,
+            text="🌍 选择翻译方向",
+            padding=(15, 10)
+        )
+        self.direction_frame.pack(fill=tk.X, pady=5)
+        
+        self.direction_var = tk.StringVar(value="EN")
+        
+        # 使用彩色单选按钮
+        self.en_radio = tk.Radiobutton(
+            self.direction_frame,
+            text="🇬🇧 英文 → 中文 🇨🇳",
+            variable=self.direction_var,
+            value="EN",
+            command=self.load_model,
+            bg=self.colors["background"],
+            fg=self.colors["text"],
+            activebackground=self.colors["background"],
+            selectcolor=self.colors["accent"],
+            font=self.subtitle_font,
+            indicatoron=1
+        )
+        self.en_radio.pack(side=tk.LEFT, padx=20, pady=5)
+        
+        self.cn_radio = tk.Radiobutton(
+            self.direction_frame,
+            text="🇨🇳 中文 → 英文 🇬🇧",
+            variable=self.direction_var,
+            value="CN",
+            command=self.load_model,
+            bg=self.colors["background"],
+            fg=self.colors["text"],
+            activebackground=self.colors["background"],
+            selectcolor=self.colors["accent"],
+            font=self.subtitle_font,
+            indicatoron=1
+        )
+        self.cn_radio.pack(side=tk.LEFT, padx=20, pady=5)
+    
+    def create_io_areas(self):
+        """创建输入输出区域"""
+        # 输入区域
+        self.input_frame = ttk.LabelFrame(
+            self.main_frame,
+            text="📝 输入文本",
+            padding=(15, 10)
+        )
+        self.input_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        self.input_text = scrolledtext.ScrolledText(
+            self.input_frame,
+            height=6,
+            wrap=tk.WORD,
+            font=self.text_font,
+            padx=10,
+            pady=10,
+            highlightthickness=1,
+            highlightbackground=self.colors["secondary"],
+            bg="white",
+            fg=self.colors["text"],
+            insertbackground=self.colors["primary"]
+        )
+        self.input_text.pack(fill=tk.BOTH, expand=True)
+        
+        # 输出区域
+        self.output_frame = ttk.LabelFrame(
+            self.main_frame,
+            text="✨ 翻译结果",
+            padding=(15, 10)
+        )
+        self.output_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        self.output_text = scrolledtext.ScrolledText(
+            self.output_frame,
+            height=6,
+            wrap=tk.WORD,
+            font=self.text_font,
+            padx=10,
+            pady=10,
+            state=tk.DISABLED,
+            highlightthickness=1,
+            highlightbackground=self.colors["secondary"],
+            bg="white",
+            fg=self.colors["text"]
+        )
+        self.output_text.pack(fill=tk.BOTH, expand=True)
+    
+    def create_button_area(self):
+        """创建按钮区域"""
+        self.button_frame = ttk.Frame(self.main_frame)
+        self.button_frame.pack(fill=tk.X, pady=15)
+        
+        # 使用彩色按钮
+        self.translate_button = tk.Button(
+            self.button_frame,
+            text="🔁 开始翻译",
+            command=self.translate,
+            bg=self.colors["primary"],
+            fg="black",
+            activebackground=self.colors["secondary"],
+            activeforeground="white",
+            font=self.subtitle_font,
+            bd=0,
+            padx=20,
+            pady=8,
+            relief="flat",
+            cursor="hand2"
+        )
+        self.translate_button.pack(side=tk.LEFT, padx=10)
+        
+        self.clear_button = tk.Button(
+            self.button_frame,
+            text="🧹 清空内容",
+            command=self.clear_text,
+            bg=self.colors["accent"],
+            fg="white",
+            activebackground="#e84393",
+            activeforeground="white",
+            font=self.subtitle_font,
+            bd=0,
+            padx=20,
+            pady=8,
+            relief="flat",
+            cursor="hand2"
+        )
+        self.clear_button.pack(side=tk.LEFT, padx=10)
+    
+    def create_status_bar(self):
+        """创建彩色状态栏"""
+        self.status_frame = tk.Frame(
+            self.main_frame,
+            bg=self.colors["primary"],
+            height=58
+        )
+        self.status_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        self.status_var = tk.StringVar()
+        self.status_var.set("🟢 就绪")
+        
+        self.status_label = tk.Label(
+            self.status_frame,
+            textvariable=self.status_var,
+            bg=self.colors["primary"],
+            fg="black",
+            font=("Microsoft YaHei", 13),
+            anchor=tk.W,
+            padx=10
+        )
+        self.status_label.pack(fill=tk.X)
+    
+    def load_model(self):
+        """加载选定的翻译模型"""
+        try:
+            small_model_paths = {
+                "EN": "./train_small/en_zh_translator_small",
+                "CN": "./train_small/zh_en_translator_small"
+            }
+            large_model_paths = {
+                "EN": "./train/en_zh_translator",
+                "CN": "./train/zh_en_translator"
+            }
+
+            model_choice = self.model_choice.get()
+            direction = self.direction_var.get()
+
+            # 确定模型路径
+            if model_choice == "1":  # 小数据训练模型
+                model_path = small_model_paths[direction]
+                model_type = "🚀 快速测试模型"
+            else:  # 大数据训练模型
+                model_path = large_model_paths[direction]
+                model_type = "🎯 高质量模型"
+
+            if os.path.exists(model_path):
+                self.model, self.tokenizer, self.device = self.load_model_from_path(model_path)
+                direction_text = "🇬🇧→🇨🇳" if direction == "EN" else "🇨🇳→🇬🇧"
+                self.update_status(f"🟢 {model_type}加载成功 {direction_text}")
+            else:
+                raise FileNotFoundError(f"模型路径不存在: {model_path}")
+                
+        except Exception as e:
+            messagebox.showerror("错误", f"加载模型失败: {str(e)}")
+            self.update_status("🔴 模型加载失败")
+    
+    def load_model_from_path(self, model_path):
+        """从指定路径加载模型"""
         model = MarianMTModel.from_pretrained(model_path)
         tokenizer = MarianTokenizer.from_pretrained(model_path)
         
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model.to(device)
-        return model, tokenizer, device
-    else:
-        raise FileNotFoundError(f"模型路径不存在: {model_path}")
-
-def translate_text(text, model, tokenizer, device):
-    """翻译文本"""
-    # 确保文本不为空
-    if not text.strip():
-        return ""
-    
-    # 对输入进行预处理，防止生成重复翻译
-    inputs = tokenizer(text, return_tensors="pt", padding=True).to(device)
-    
-    # 设置生成参数，避免重复
-    translated = model.generate(
-        **inputs,
-        num_beams=5,               # 使用更大的搜索空间
-        no_repeat_ngram_size=2,    # 避免重复的n-gram
-        length_penalty=1.0,        # 长度惩罚
-        max_length=50,             # 最大生成长度
-        min_length=1               # 最小生成长度
-    )
-    
-    translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
-    
-    # 移除可能的重复
-    words = translated_text.split()
-    if len(words) > 1:
-        clean_words = []
-        for i, word in enumerate(words):
-            # 如果当前词与前一个词不同，或者这是第一个词，则保留
-            if i == 0 or word != words[i-1]:
-                clean_words.append(word)
-        translated_text = " ".join(clean_words)
-    
-    return translated_text
-
-def main():
-    # 检查GPU是否可用
-    gpu_available = torch.cuda.is_available()
-    device_name = torch.cuda.get_device_name(0) if gpu_available else "CPU"
-    device = torch.device("cuda" if gpu_available else "cpu")
-    print(f"使用设备: {device_name}")
-    
-    # 模型路径 - 使用相对路径
-    # 小数据量训练的模型
-    en_zh_small_path = "./train_small/en_zh_translator_small"
-    zh_en_small_path = "./train_small/zh_en_translator_small"
-    # 全量数据训练的模型
-    en_zh_full_path = "./train/en_zh_translator"
-    zh_en_full_path = "./train/zh_en_translator"
-    
-    print("\n=========== 双向翻译器 ===========")
-    
-    # 先选择模型类型
-    print("\n请选择模型类型:")
-    print("1: 小数据量训练模型 (测试用)")
-    print("2: 全量数据训练模型 (高质量)")
-    
-    model_choice = input("请选择模型类型 (1/2，默认1): ").strip()
-    if not model_choice:
-        model_choice = "1"  # 默认使用小数据量模型
-    
-    # 再选择翻译方向
-    print("\n请选择翻译方向:")
-    print("EN: 英文 → 中文")
-    print("CN: 中文 → 英文")
-    print("输入EOF结束程序")
-    
-    direction = input("请选择翻译方向 (EN/CN): ").strip().upper()
-    if direction == "EOF":
-        print("程序结束，再见！")
-        return
-    
-    # 确定要加载的模型路径
-    if direction in ["EN", "CN"]:
-        if direction == "EN":
-            print("已选择: 英文 → 中文")
-            if model_choice == "1":
-                model_path = en_zh_small_path
-                print("使用小数据量训练模型")
-            else:  # model_choice == "2"
-                model_path = en_zh_full_path
-                print("使用全量数据训练模型")
-        else:  # CN
-            print("已选择: 中文 → 英文")
-            if model_choice == "1":
-                model_path = zh_en_small_path
-                print("使用小数据量训练模型")
-            else:  # model_choice == "2"
-                model_path = zh_en_full_path
-                print("使用全量数据训练模型")
         
-        # 加载模型
-        try:
-            model, tokenizer, device = load_model(model_path)
-        except Exception as e:
-            print(f"加载模型失败: {str(e)}")
+        return model, tokenizer, device
+    
+    def translate(self):
+        """执行翻译并更新输出结果"""
+        user_input = self.input_text.get("1.0", tk.END).strip()
+        if not user_input:
+            messagebox.showwarning("警告", "请输入要翻译的文本!")
             return
-    else:
-        print("无效的选择，请输入 EN 或 CN")
-        return
-    
-    # 进入翻译循环
-    print("\n开始翻译，输入EOF结束程序")
-    
-    while True:
+
         try:
-            if direction == "EN":
-                user_input = input("\n请输入英文: ").strip()
-            else:
-                user_input = input("\n请输入中文: ").strip()
-                
-            if user_input.upper() == "EOF":
-                print("翻译程序结束，再见！")
-                break
+            self.update_status("🟡 正在翻译...")
+            self.master.update()  # 更新UI显示状态
             
-            if not user_input:
-                continue
-                
-            translated = translate_text(user_input, model, tokenizer, device)
-            print(f"翻译结果: {translated}")
+            translated = self.translate_text(user_input)
             
-        except EOFError:
-            print("\n翻译程序结束，再见！")
-            break
-        except KeyboardInterrupt:
-            print("\n翻译程序被中断，再见！")
-            break
+            self.output_text.config(state=tk.NORMAL)
+            self.output_text.delete("1.0", tk.END)
+            self.output_text.insert(tk.END, translated)
+            self.output_text.config(state=tk.DISABLED)
+            
+            self.update_status("🟢 翻译完成")
         except Exception as e:
-            print(f"翻译出错: {str(e)}")
+            messagebox.showerror("错误", f"翻译出错: {str(e)}")
+            self.update_status("🔴 翻译出错")
+    
+    def translate_text(self, text):
+        """翻译文本"""
+        inputs = self.tokenizer(
+            text, 
+            return_tensors="pt", 
+            padding=True,
+            truncation=True,
+            max_length=512
+        ).to(self.device)
+        
+        translated = self.model.generate(
+            **inputs,
+            num_beams=5,
+            no_repeat_ngram_size=2,
+            length_penalty=1.0,
+            max_length=100,
+            min_length=1
+        )
+        
+        translated_text = self.tokenizer.decode(translated[0], skip_special_tokens=True)
+        
+        # 简单的后处理
+        translated_text = " ".join(translated_text.split())  # 去除多余空格
+        return translated_text
+    
+    def clear_text(self):
+        """清空输入输出框"""
+        self.input_text.delete("1.0", tk.END)
+        self.output_text.config(state=tk.NORMAL)
+        self.output_text.delete("1.0", tk.END)
+        self.output_text.config(state=tk.DISABLED)
+        self.update_status("🟠 已清空内容")
+    
+    def update_status(self, message):
+        """更新状态栏"""
+        self.status_var.set(message)
+        self.master.update_idletasks()
 
 if __name__ == "__main__":
-    main() 
+    root = tk.Tk()
+    app = ColorfulTranslatorApp(root)
+    root.mainloop()
